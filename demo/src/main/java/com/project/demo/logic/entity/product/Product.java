@@ -20,11 +20,10 @@ public class Product {
 
     private Integer stockQuantity;
 
-    @ManyToOne(cascade = CascadeType.REMOVE)
+    @ManyToOne()
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
     private Category category;
 
-    //@JsonIgnore
     @Transient
     private Long categoryId;
 

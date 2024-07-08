@@ -30,27 +30,23 @@ public class ProductController {
     @PostMapping
     @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
     public Product addProduct(@RequestBody Product product) {
-        return categoryRepository.findById(product.getCategoryId())
-                .map(category -> {
-                    product.setCategory(category);
-                    return productRepository.save(product);
-                })
-                .orElseThrow(RuntimeException::new);
+        return productRepository.save(product);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('SUPER_ADMIN_ROLE')")
     public Product updateProduct(@PathVariable Long id, @RequestBody Product product) {
-        return productRepository.findById(id)
-                .map(existingProduct -> {
-                    existingProduct.setName(product.getName());
-                    existingProduct.setPrice(product.getPrice());
-                    return productRepository.save(existingProduct);
-                })
-                .orElseGet(() -> {
-                    product.setId(id);
-                    return productRepository.save(product);
-                });
+        // Validate that the product exists
+        var productToUpdate = productRepository.findById(id).orElseThrow(RuntimeException::new);
+
+        // Update the product
+        productToUpdate.setName(product.getName());
+        productToUpdate.setDescription(product.getDescription());
+        productToUpdate.setPrice(product.getPrice());
+        productToUpdate.setStockQuantity(product.getStockQuantity());
+        productToUpdate.setCategory(categoryRepository.findById(product.getCategoryId()).orElseThrow(RuntimeException::new));
+
+        return productRepository.save(productToUpdate);
     }
 
     @DeleteMapping("/{id}")
